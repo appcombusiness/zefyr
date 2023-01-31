@@ -29,11 +29,6 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   /// - Changing the selection using a physical keyboard.
   bool get shouldCreateInputConnection => kIsWeb || !widget.readOnly;
 
-  // Migration to flutter 3
-  void insertTextPlaceholder(Size size) {}
-
-  void removeTextPlaceholder() {}
-
   void _remoteValueChanged(
       int start, String deleted, String inserted, TextSelection selection) {
     widget.controller
