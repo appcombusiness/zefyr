@@ -322,4 +322,10 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       });
     }
   }
+
+  @override
+  void insertTextPlaceholder(Size size) {}
+
+  @override
+  void removeTextPlaceholder() {}
 }

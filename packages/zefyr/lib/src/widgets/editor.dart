@@ -429,6 +429,7 @@ class _ZefyrEditorSelectionGestureDetectorBuilder
               break;
             case PointerDeviceKind.touch:
             case PointerDeviceKind.unknown:
+            case PointerDeviceKind.trackpad:
               // On macOS/iOS/iPadOS a touch tap places the cursor at the edge
               // of the word.
               renderEditor!.selectWordEdge(cause: SelectionChangedCause.tap);
@@ -812,6 +813,13 @@ class RawEditorState extends EditorState
 
   @override
   void copySelection(SelectionChangedCause cause) {
+    final TextSelection selection = textEditingValue.selection;
+    if (selection.isCollapsed) {
+      return;
+    }
+    final String text = textEditingValue.text;
+    Clipboard.setData(ClipboardData(text: selection.textInside(text)));
+
     if (cause == SelectionChangedCause.toolbar) {
       bringIntoView(textEditingValue.selection.extent);
       hideToolbar(false);
@@ -840,23 +848,81 @@ class RawEditorState extends EditorState
 
   @override
   void cutSelection(SelectionChangedCause cause) {
+    if (widget.readOnly) return;
+
+    final TextSelection selection = textEditingValue.selection;
+    final String text = textEditingValue.text;
+    if (selection.isCollapsed) {
+      return;
+    }
+    Clipboard.setData(ClipboardData(text: selection.textInside(text)));
+    _replaceText(ReplaceTextIntent(textEditingValue, '', selection, cause));
+
     if (cause == SelectionChangedCause.toolbar) {
-      bringIntoView(textEditingValue.selection.extent);
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          bringIntoView(textEditingValue.selection.extent);
+        }
+      });
       hideToolbar();
     }
   }
 
   @override
   Future<void> pasteText(SelectionChangedCause cause) async {
+    if (widget.readOnly) {
+      return;
+    }
+    final TextSelection selection = textEditingValue.selection;
+    if (!selection.isValid) {
+      return;
+    }
+    // Snapshot the input before using `await`.
+    // See https://github.com/flutter/flutter/issues/11427
+    final ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (data == null) {
+      return;
+    }
+
+    // After the paste, the cursor should be collapsed and located after the
+    // pasted content.
+    final int lastSelectionIndex =
+        math.max(selection.baseOffset, selection.extentOffset);
+    final TextEditingValue collapsedTextEditingValue =
+        textEditingValue.copyWith(
+      selection: TextSelection.collapsed(offset: lastSelectionIndex),
+    );
+
+    userUpdateTextEditingValue(
+      collapsedTextEditingValue.replaced(selection, data.text!),
+      cause,
+    );
+
     // Copied straight from EditableTextState
     if (cause == SelectionChangedCause.toolbar) {
-      bringIntoView(textEditingValue.selection.extent);
+      // Schedule a call to bringIntoView() after renderEditable updates.
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          bringIntoView(textEditingValue.selection.extent);
+        }
+      });
       hideToolbar();
     }
   }
 
   @override
   void selectAll(SelectionChangedCause cause) {
+    if (!widget.selectionEnabled) {
+      return;
+    }
+    userUpdateTextEditingValue(
+      textEditingValue.copyWith(
+        selection: TextSelection(
+            baseOffset: 0, extentOffset: textEditingValue.text.length),
+      ),
+      cause,
+    );
+
     // Copied straight from EditableTextState
     if (cause == SelectionChangedCause.toolbar) {
       bringIntoView(textEditingValue.selection.extent);
