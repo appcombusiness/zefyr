@@ -997,7 +997,7 @@ class RenderEditor extends RenderEditableContainerBox
   }
 }
 
-class ZefyrVerticalCaretMovementRun extends TreeIterator<TextPosition> {
+class ZefyrVerticalCaretMovementRun extends Iterator<TextPosition> {
   ZefyrVerticalCaretMovementRun._(
     this._editor,
     this._currentTextPosition,
@@ -1018,7 +1018,6 @@ class ZefyrVerticalCaretMovementRun extends TreeIterator<TextPosition> {
     return true;
   }
 
-  @override
   bool movePrevious() {
     _currentTextPosition = _editor.getTextPositionAbove(_currentTextPosition);
     return true;
