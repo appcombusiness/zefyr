@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_settings == null || _controller == null) {
+    if (_controller == null) {
       return const Scaffold(body: Center(child: Text('Loading...')));
     }
 
@@ -102,7 +102,7 @@ class _HomePageState extends State<HomePage> {
 
   void _showSettings() async {
     final result = await showSettingsDialog(context, _settings);
-    if (mounted && result != null) {
+    if (mounted) {
       setState(() {
         _settings = result;
       });

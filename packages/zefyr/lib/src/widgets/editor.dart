@@ -789,6 +789,22 @@ class RawEditorState extends EditorState
     }
   }
 
+  @override
+  void didChangeInputControl(
+      TextInputControl? oldControl, TextInputControl? newControl) {
+    // TODO: implement didChangeInputControl
+  }
+
+  @override
+  void performSelector(String selectorName) {
+    // TODO: implement performSelector
+  }
+
+  @override
+  void insertContent(String text) {
+    // TODO: implement insertContent
+  }
+
   /// Shows the selection toolbar at the location of the current cursor.
   ///
   /// Returns `false` if a toolbar couldn't be shown, such as when the toolbar
