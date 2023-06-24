@@ -18,6 +18,9 @@ import 'package:flutter/services.dart';
 import '../rendering/editor.dart';
 import 'editor.dart';
 
+typedef DragSelectionUpdateCallback = void Function(
+    DragStartDetails startDetails, DragUpdateDetails updateDetails);
+
 /// A duration that controls how often the drag selection update callback is
 /// called.
 const Duration _kDragSelectionUpdateThrottle = Duration(milliseconds: 50);
@@ -1205,7 +1208,8 @@ class _EditorTextSelectionGestureDetectorState
       gestures[LongPressGestureRecognizer] =
           GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
         () => LongPressGestureRecognizer(
-            debugOwner: this, supportedDevices: {PointerDeviceKind.touch}),
+            debugOwner: this,
+            supportedDevices: Set.of({PointerDeviceKind.touch})),
         (LongPressGestureRecognizer instance) {
           instance
             ..onLongPressStart = _handleLongPressStart
@@ -1223,7 +1227,8 @@ class _EditorTextSelectionGestureDetectorState
       gestures[HorizontalDragGestureRecognizer] =
           GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
         () => HorizontalDragGestureRecognizer(
-            debugOwner: this, supportedDevices: {PointerDeviceKind.mouse}),
+            debugOwner: this,
+            supportedDevices: Set.of({PointerDeviceKind.mouse})),
         (HorizontalDragGestureRecognizer instance) {
           instance
             // Text selection should start from the position of the first pointer

@@ -801,7 +801,7 @@ class RawEditorState extends EditorState
   }
 
   @override
-  void insertContent(String text) {
+  void insertContent(KeyboardInsertedContent content) {
     // TODO: implement insertContent
   }
 
